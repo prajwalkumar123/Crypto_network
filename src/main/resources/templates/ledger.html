@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Ledger - Blockchain Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .navbar {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .navbar .nav-links a:hover {
+            background: rgba(229, 9, 20, 0.1);
+            border-color: #e50914;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #e50914, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.6)); }
+            to { filter: drop-shadow(0 0 25px rgba(243, 156, 18, 0.8)); }
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            text-align: center;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #f39c12, #e50914);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(243, 156, 18, 0.3);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #f39c12;
+        }
+
+        .stat-card .number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #e50914;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            color: #ffffff;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .ledger-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .tab-btn {
+            background: rgba(45, 45, 45, 0.8);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #e50914, #f39c12);
+            border-color: #e50914;
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.4);
+        }
+
+        .tab-btn:hover:not(.active) {
+            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: rgba(45, 45, 45, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 12px 20px 12px 50px;
+            color: #ffffff;
+            font-size: 16px;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #f39c12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.3);
+        }
+
+        .search-box .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f39c12;
+            font-size: 1.2em;
+        }
+
+        .ledger-table {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(243, 156, 18, 0.2);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .table-header {
+            background: rgba(229, 9, 20, 0.1);
+            padding: 20px;
+            border-bottom: 2px solid rgba(229, 9, 20, 0.3);
+        }
+
+        .table-header h2 {
+            color: #e50914;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table th {
+            background: rgba(45, 45, 45, 0.8);
+            color: #f39c12;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid rgba(243, 156, 18, 0.3);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .transaction-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            vertical-align: middle;
+            font-size: 0.9em;
+        }
+
+        .transaction-table tbody tr {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .transaction-table tbody tr:hover {
+            background: rgba(229, 9, 20, 0.05);
+            transform: scale(1.01);
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.2);
+        }
+
+        .transaction-id {
+            color: #3498db;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+        }
+
+        .node-badge {
+            background: linear-gradient(135deg, #e50914, #d40813);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+        .status-pending {
+            background: rgba(243, 156, 18, 0.2);
+            color: #f39c12;
+            border: 1px solid #f39c12;
+        }
+
+        .status-failed {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .algorithm-tag {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.7em;
+            font-weight: bold;
+            border: 1px solid #9b59b6;
+        }
+
+        .timestamp {
+            color: #f39c12;
+            font-size: 0.8em;
+        }
+
+        .no-transactions {
+            text-align: center;
+            padding: 60px 30px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .no-transactions .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .blockchain-visualization {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(243, 156, 18, 0.2);
+        }
+
+        .blockchain-visualization h3 {
+            color: #f39c12;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .chain-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chain-block {
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.8), rgba(243, 156, 18, 0.8));
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chain-block:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+        }
+
+        .chain-block .block-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .chain-block .block-txns {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+
+        .chain-arrow {
+            color: #f39c12;
+            font-size: 1.5em;
+        }
+
+        .floating-data {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-block {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #f39c12;
+            border-radius: 2px;
+            animation: floatData 20s infinite linear;
+            opacity: 0.3;
+        }
+
+        @keyframes floatData {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ledger-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-tabs {
+                justify-content: center;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .transaction-table {
+                font-size: 0.8em;
+            }
+
+            .chain-flow {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">📊 BLOCKCHAIN LEDGER</div>
+        <div class="nav-links">
+            <a th:href="@{/node}">← Back to Node</a>
+            <a th:href="@{/network}">Network</a>
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="floating-data">
+        <div class="floating-block" style="left: 5%; animation-delay: 0s;"></div>
+        <div class="floating-block" style="left: 15%; animation-delay: 3s;"></div>
+        <div class="floating-block" style="left: 25%; animation-delay: 6s;"></div>
+        <div class="floating-block" style="left: 35%; animation-delay: 9s;"></div>
+        <div class="floating-block" style="left: 45%; animation-delay: 12s;"></div>
+        <div class="floating-block" style="left: 55%; animation-delay: 15s;"></div>
+        <div class="floating-block" style="left: 65%; animation-delay: 2s;"></div>
+        <div class="floating-block" style="left: 75%; animation-delay: 5s;"></div>
+        <div class="floating-block" style="left: 85%; animation-delay: 8s;"></div>
+        <div class="floating-block" style="left: 95%; animation-delay: 11s;"></div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>ABSTRACTED LEDGER</h1>
+            <p style="font-size: 1.2em; opacity: 0.8;">Complete transaction history across all network nodes</p>
+        </div>
+
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="icon">📊</div>
+                <div class="number" th:text="${totalTransactions}">0</div>
+                <div class="label">Total Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <div class="number" th:text="${completedTransactions}">0</div>
+                <div class="label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">⏳</div>
+                <div class="number" th:text="${pendingTransactions}">0</div>
+                <div class="label">Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon">🏠</div>
+                <div class="number" th:text="${user.nodeNumber}">1</div>
+                <div class="label">Your Node</div>
+            </div>
+        </div>
+
+        <div class="blockchain-visualization">
+            <h3>🔗 Blockchain Network Flow</h3>
+            <div class="chain-flow">
+                <div class="chain-block" onclick="showNodeInfo(1)">
+                    <div class="block-number">Node 1</div>
+                    <div class="block-txns">Active</div>
+                </div>
+                <div class="chain-arrow">→</div>
+                <div class="chain-block" onclick="showNodeInfo(2)">
+                    <div class="block-number">Node 2</div>
+                    <div class="block-txns">Active</div>
+                </div>
+                <div class="chain-arrow">→</div>
+                <div class="chain-block" onclick="showNodeInfo(3)">
+                    <div class="block-number">...</div>
+                    <div class="block-txns">Network</div>
+                </div>
+                <div class="chain-arrow">→</div>
+                <div class="chain-block" onclick="showNodeInfo(10)">
+                    <div class="block-number">Node 10</div>
+                    <div class="block-txns">Active</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ledger-controls">
+            <div class="filter-tabs">
+                <button class="tab-btn active" data-filter="all">All Transactions</button>
+                <button class="tab-btn" data-filter="completed">Completed</button>
+                <button class="tab-btn" data-filter="pending">Pending</button>
+                <button class="tab-btn" data-filter="node">My Node</button>
+            </div>
+            
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search transactions...">
+            </div>
+        </div>
+
+        <div class="ledger-table">
+            <div class="table-header">
+                <h2>🔗 Distributed Ledger Records</h2>
+            </div>
+            
+            <div class="table-wrapper">
+                <div th:if="${allTransactions.empty}" class="no-transactions">
+                    <div class="icon">📊</div>
+                    <h3>No Transactions Yet</h3>
+                    <p>The blockchain ledger is empty. Start creating and transferring tokens to see transaction records here.</p>
+                </div>
+
+                <table class="transaction-table" th:if="${!allTransactions.empty}">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                            <th>Encryption</th>
+                            <th>Algorithm</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTableBody">
+                        <tr th:each="transaction : ${allTransactions}" 
+                            th:data-status="${#strings.toLowerCase(transaction.status)}"
+                            th:data-node="${transaction.sourceNode}"
+                            class="transaction-row">
+                            <td>
+                                <div class="transaction-id" th:text="${transaction.transactionId}">TXN-123ABC</div>
+                            </td>
+                            <td>
+                                <div class="node-badge" th:text="'Node ' + ${transaction.sourceNode}">Node 1</div>
+                            </td>
+                            <td>
+                                <div class="node-badge" th:text="'Node ' + ${transaction.destinationNode}">Node 2</div>
+                            </td>
+                            <td>
+                                <span style="color: #3498db; font-family: monospace; font-size: 0.8em;"
+                                      th:text="${#strings.abbreviate(transaction.encryptionKey, 12)}">KEY***</span>
+                            </td>
+                            <td>
+                                <div class="algorithm-tag" th:text="${transaction.encryptionAlgorithm}">CAESAR</div>
+                            </td>
+                            <td>
+                                <div class="status-badge" 
+                                     th:class="'status-badge status-' + ${#strings.toLowerCase(transaction.status)}"
+                                     th:text="${transaction.status}">COMPLETED</div>
+                            </td>
+                            <td>
+                                <div class="timestamp" th:text="${#temporals.format(transaction.timestamp, 'MMM dd, HH:mm:ss')}">Dec 15, 14:30:45</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                const rows = document.querySelectorAll('.transaction-row');
+                const userNode = parseInt(document.querySelector('.stat-card .number').previousElementSibling.textContent);
+                
+                rows.forEach(row => {
+                    const status = row.dataset.status;
+                    const sourceNode = parseInt(row.dataset.node);
+                    const destinationNode = parseInt(row.children[2].textContent.replace('Node ', ''));
+                    
+                    let show = false;
+                    
+                    switch(filter) {
+                        case 'all':
+                            show = true;
+                            break;
+                        case 'completed':
+                            show = status === 'completed';
+                            break;
+                        case 'pending':
+                            show = status === 'pending';
+                            break;
+                        case 'node':
+                            show = sourceNode === userNode || destinationNode === userNode;
+                            break;
+                    }
+                    
+                    if (show) {
+                        row.style.display = '';
+                        setTimeout(() => {
+                            row.style.opacity = '1';
+                            row.style.transform = 'translateX(0)';
+                        }, Math.random() * 200);
+                    } else {
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            row.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.transaction-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                } else {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        row.style.display = 'none';
+                    }, 200);
+                }
+            });
+        });
+
+        // Node info function
+        function showNodeInfo(nodeNumber) {
+            alert(`Node ${nodeNumber} Information:\n\nThis node is part of the distributed blockchain network.\nAll nodes maintain identical copies of the ledger.\nTransactions are synchronized across all nodes.`);
+        }
+
+        // Add floating blocks dynamically
+        function createFloatingBlock() {
+            const block = document.createElement('div');
+            block.className = 'floating-block';
+            block.style.left = Math.random() * 100 + '%';
+            block.style.animationDelay = '0s';
+            block.style.animationDuration = (Math.random() * 10 + 15) + 's';
+            document.querySelector('.floating-data').appendChild(block);
+            
+            setTimeout(() => {
+                block.remove();
+            }, 25000);
+        }
+
+        setInterval(createFloatingBlock, 2000);
+
+        // Enhanced hover effects for transaction rows
+        document.querySelectorAll('.transaction-row').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'scale(1.02) translateZ(10px)';
+                row.style.zIndex = '5';
+                row.style.boxShadow = '0 10px 30px rgba(229, 9, 20, 0.3)';
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'scale(1) translateZ(0)';
+                row.style.zIndex = '1';
+                row.style.boxShadow = 'none';
+            });
+        });
+
+        // Stat card animations
+        document.querySelectorAll('.stat-card').forEach((card, index) => {
+            card.style.animationDelay = (index * 0.1) + 's';
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-12px) scale(1.08)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Chain block interactions
+        document.querySelectorAll('.chain-block').forEach(block => {
+            block.addEventListener('mouseenter', () => {
+                block.style.transform = 'scale(1.15) rotateY(5deg)';
+                block.style.boxShadow = '0 15px 40px rgba(229, 9, 20, 0.5)';
+            });
+            
+            block.addEventListener('mouseleave', () => {
+                block.style.transform = 'scale(1) rotateY(0deg)';
+                block.style.boxShadow = 'none';
+            });
+        });
+
+        // Auto-refresh simulation
+        let refreshInterval;
+        function startAutoRefresh() {
+            refreshInterval = setInterval(() => {
+                // Simulate real-time updates
+                document.querySelectorAll('.status-pending').forEach(badge => {
+                    if (Math.random() > 0.7) {
+                        badge.textContent = 'COMPLETED';
+                        badge.className = 'status-badge status-completed';
+                    }
+                });
+            }, 10000);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+
+        // Start auto-refresh
+        startAutoRefresh();
+
+        // Copy transaction ID on click
+        document.querySelectorAll('.transaction-id').forEach(id => {
+            id.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.textContent).then(() => {
+                    this.style.background = 'rgba(39, 174, 96, 0.3)';
+                    this.style.padding = '5px';
+                    this.style.borderRadius = '5px';
+                    setTimeout(() => {
+                        this.style.background = '';
+                        this.style.padding = '';
+                        this.style.borderRadius = '';
+                    }, 1000);
+                });
+            });
+            
+            id.style.cursor = 'pointer';
+            id.title = 'Click to copy transaction ID';
+        });
+
+        // Table sorting functionality
+        document.querySelectorAll('.transaction-table th').forEach((header, index) => {
+            header.style.cursor = 'pointer';
+            header.addEventListener('click', () => {
+                sortTable(index);
+            });
+        });
+
+        function sortTable(columnIndex) {
+            const table = document.querySelector('.transaction-table tbody');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aText = a.children[columnIndex].textContent.trim();
+                const bText = b.children[columnIndex].textContent.trim();
+                
+                if (columnIndex === 6) { // Timestamp column
+                    return new Date(bText) - new Date(aText);
+                }
+                
+                return aText.localeCompare(bText);
+            });
+            
+            // Re-append sorted rows
+            rows.forEach(row => table.appendChild(row));
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        document.querySelector('[data-filter="all"]').click();
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        document.querySelector('[data-filter="completed"]').click();
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        document.querySelector('[data-filter="pending"]').click();
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        document.querySelector('[data-filter="node"]').click();
+                        break;
+                }
+            }
+        });
+
+        // Add tooltips for better UX
+        const shortcuts = document.createElement('div');
+        shortcuts.innerHTML = `
+            <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(20, 20, 20, 0.9); padding: 15px; border-radius: 10px; font-size: 0.8em; opacity: 0.7; z-index: 1000;">
+                <div>💡 Shortcuts:</div>
+                <div>Ctrl+F: Search</div>
+                <div>Ctrl+1-4: Filter tabs</div>
+                <div>Click headers to sort</div>
+                <div>Click IDs to copy</div>
+            </div>
+        `;
+        document.body.appendChild(shortcuts);
+
+        // Hide shortcuts after 5 seconds
+        setTimeout(() => {
+            shortcuts.style.display = 'none';
+        }, 5000);
+    </script>
+</body>
+</html>

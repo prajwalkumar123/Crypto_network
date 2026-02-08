@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Received Tokens - Blockchain Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .navbar {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .navbar .nav-links a:hover {
+            background: rgba(229, 9, 20, 0.1);
+            border-color: #e50914;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #e50914, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.6)); }
+            to { filter: drop-shadow(0 0 25px rgba(155, 89, 182, 0.8)); }
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(155, 89, 182, 0.2);
+        }
+
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #9b59b6;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: #ffffff;
+            opacity: 0.8;
+        }
+
+        .tokens-section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #9b59b6;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #9b59b6, transparent);
+        }
+
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .token-card {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(155, 89, 182, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .token-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #9b59b6, #e74c3c);
+        }
+
+        .token-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(155, 89, 182, 0.3);
+            border-color: rgba(155, 89, 182, 0.5);
+        }
+
+        .token-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .token-id {
+            color: #f39c12;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .token-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            border: 1px solid #9b59b6;
+        }
+
+        .encrypted-content {
+            background: rgba(45, 45, 45, 0.5);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .encrypted-content .label {
+            color: #9b59b6;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .encrypted-content .text {
+            color: #3498db;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
+
+        .decrypt-section {
+            background: rgba(45, 45, 45, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed rgba(155, 89, 182, 0.3);
+        }
+
+        .decrypt-form {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .decrypt-form input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(45, 45, 45, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .decrypt-form input:focus {
+            outline: none;
+            border-color: #9b59b6;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
+        }
+
+        .decrypt-form input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .decrypt-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.3);
+            white-space: nowrap;
+        }
+
+        .decrypt-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .decrypted-result {
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .decrypted-result.show {
+            display: block;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .decrypted-result .label {
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .decrypted-result .content {
+            color: #ffffff;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .token-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: rgba(45, 45, 45, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .meta-item .label {
+            color: #9b59b6;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .meta-item .value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .no-tokens {
+            text-align: center;
+            padding: 80px 30px;
+            background: rgba(45, 45, 45, 0.3);
+            border-radius: 20px;
+            border: 2px dashed rgba(155, 89, 182, 0.3);
+        }
+
+        .no-tokens .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .no-tokens h3 {
+            color: #9b59b6;
+            margin-bottom: 15px;
+        }
+
+        .no-tokens p {
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .decrypted-text-display {
+            background: rgba(39, 174, 96, 0.1);
+            border: 2px solid rgba(39, 174, 96, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .decrypted-text-display .label {
+            color: #27ae60;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .decrypted-text-display .text {
+            color: #ffffff;
+            font-size: 1.2em;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .floating-keys {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-key {
+            position: absolute;
+            font-size: 18px;
+            color: #9b59b6;
+            animation: floatKey 15s infinite linear;
+            opacity: 0.2;
+        }
+
+        @keyframes floatKey {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">📥 RECEIVED TOKENS</div>
+        <div class="nav-links">
+            <a th:href="@{/node}">← Back to Node</a>
+            <a th:href="@{/token}">Tokens</a>
+            <a th:href="@{/transfer}">Transfer</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="floating-keys">
+        <div class="floating-key" style="left: 10%; animation-delay: 0s;">🔑</div>
+        <div class="floating-key" style="left: 30%; animation-delay: 5s;">🗝️</div>
+        <div class="floating-key" style="left: 50%; animation-delay: 10s;">🔐</div>
+        <div class="floating-key" style="left: 70%; animation-delay: 3s;">🔓</div>
+        <div class="floating-key" style="left: 90%; animation-delay: 8s;">🔑</div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>RECEIVED TOKENS</h1>
+            <p style="font-size: 1.2em; opacity: 0.8;">Decrypt tokens received from other nodes</p>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="number" th:text="${receivedTokens.size()}">0</div>
+                <div class="label">Received Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${receivedTransactions.size()}">0</div>
+                <div class="label">Incoming Transactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" th:text="${user.nodeNumber}">1</div>
+                <div class="label">Current Node</div>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+        
+        <div th:if="${decryptedText}" class="decrypted-text-display">
+            <div class="label">✅ Successfully Decrypted Token:</div>
+            <div class="text" th:text="${decryptedText}"></div>
+        </div>
+
+        <div class="tokens-section">
+            <div class="section-title">Encrypted Tokens</div>
+
+            <div th:if="${receivedTokens.empty}" class="no-tokens">
+                <div class="icon">📥</div>
+                <h3>No Received Tokens</h3>
+                <p>You haven't received any encrypted tokens yet. Tokens will appear here when other nodes transfer them to your node.</p>
+            </div>
+
+            <div class="tokens-grid" th:if="${!receivedTokens.empty}">
+                <div th:each="token : ${receivedTokens}" class="token-card">
+                    <div class="token-header">
+                        <div class="token-id">Token #<span th:text="${token.id}">1</span></div>
+                        <div class="token-status" th:text="${token.status}">RECEIVED</div>
+                    </div>
+
+                    <div class="encrypted-content">
+                        <div class="label">🔒 Encrypted Data:</div>
+                        <div class="text" th:text="${token.encryptedText}">Encrypted content here</div>
+                    </div>
+
+                    <div class="decrypt-section">
+                        <h4 style="color: #9b59b6; margin-bottom: 15px;">🔑 Decrypt Token</h4>
+                        <form th:action="@{/received/decrypt}" method="post" class="decrypt-form">
+                            <input type="hidden" name="tokenId" th:value="${token.id}">
+                            <input type="password" name="decryptionKey" placeholder="Enter decryption key" required>
+                            <button type="submit" class="decrypt-btn">Decrypt</button>
+                        </form>
+                        <small style="color: #f39c12; margin-top: 10px; display: block;">
+                            Use the same key that was used during transfer
+                        </small>
+                    </div>
+
+                    <div class="token-meta">
+                        <div class="meta-item">
+                            <div class="label">Algorithm</div>
+                            <div class="value" th:text="${token.encryptionAlgorithm}">AES</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Received</div>
+                            <div class="value" th:text="${#temporals.format(token.createdAt, 'MMM dd, HH:mm')}">Now</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Node</div>
+                            <div class="value" th:text="${token.nodeNumber}">1</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Status</div>
+                            <div class="value" th:text="${token.status}">TRANSFERRED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tokens-section" th:if="${!receivedTransactions.empty}">
+            <div class="section-title">Incoming Transactions</div>
+            
+            <div class="tokens-grid">
+                <div th:each="transaction : ${receivedTransactions}" class="token-card" th:if="${transactionStat.index < 10}">
+                    <div class="token-header">
+                        <div class="token-id" th:text="${transaction.transactionId}">TXN-123</div>
+                        <div class="token-status"  th:class="'token-status status-' + ${#strings.toLowerCase(transaction.status)}" th:text="${transaction.status}">COMPLETED</div>
+                    </div>
+
+                    <div class="encrypted-content" th:if="${transaction.encryptedData}">
+                        <div class="label">🔒 Transaction Data:</div>
+                        <div class="text" th:text="${transaction.encryptedData}">Encrypted transaction data</div>
+                    </div>
+
+                    <div class="token-meta">
+                        <div class="meta-item">
+                            <div class="label">From Node</div>
+                            <div class="value" th:text="${transaction.sourceNode}">1</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Algorithm</div>
+                            <div class="value" th:text="${transaction.encryptionAlgorithm}">CAESAR</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Timestamp</div>
+                            <div class="value" th:text="${#temporals.format(transaction.timestamp, 'MMM dd, HH:mm')}">Now</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Status</div>
+                            <div class="value" th:text="${transaction.status}">COMPLETED</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add dynamic floating keys
+        function createFloatingKey() {
+            const key = document.createElement('div');
+            key.className = 'floating-key';
+            const keys = ['🔑', '🗝️', '🔐', '🔓', '🔒'];
+            key.textContent = keys[Math.floor(Math.random() * keys.length)];
+            key.style.left = Math.random() * 100 + '%';
+            key.style.animationDelay = '0s';
+            key.style.animationDuration = (Math.random() * 5 + 12) + 's';
+            document.querySelector('.floating-keys').appendChild(key);
+            
+            setTimeout(() => {
+                key.remove();
+            }, 17000);
+        }
+
+        setInterval(createFloatingKey, 3000);
+
+        // Enhanced token card hover effects
+        document.querySelectorAll('.token-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-12px) scale(1.03)';
+                card.style.boxShadow = '0 25px 60px rgba(155, 89, 182, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+                card.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+            });
+        });
+
+        // Decrypt form enhancements
+        document.querySelectorAll('.decrypt-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const key = this.querySelector('input[name="decryptionKey"]').value;
+                
+                if (key.length < 1) {
+                    e.preventDefault();
+                    alert('Please enter a decryption key');
+                    return;
+                }
+
+                // Add loading state
+                const button = this.querySelector('.decrypt-btn');
+                const originalText = button.textContent;
+                button.textContent = 'Decrypting...';
+                button.disabled = true;
+                
+                // Reset after 3 seconds if no response
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 3000);
+            });
+
+            // Key input validation
+            const keyInput = form.querySelector('input[name="decryptionKey"]');
+            keyInput.addEventListener('input', function() {
+                const button = form.querySelector('.decrypt-btn');
+                if (this.value.length >= 1) {
+                    button.style.background = 'linear-gradient(135deg, #9b59b6, #8e44ad)';
+                    this.style.borderColor = '#27ae60';
+                } else {
+                    button.style.background = 'rgba(155, 89, 182, 0.5)';
+                    this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                }
+            });
+        });
+
+        // Add typing effect to decryption keys
+        document.querySelectorAll('input[name="decryptionKey"]').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                this.style.transform = 'scale(1.02)';
+                this.style.boxShadow = '0 0 25px rgba(155, 89, 182, 0.4)';
+                
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = 'none';
+                }, 100);
+            });
+        });
+
+        // Animate alerts
+        document.querySelectorAll('.alert').forEach(alert => {
+            setTimeout(() => {
+                alert.style.transform = 'translateX(5px)';
+                setTimeout(() => {
+                    alert.style.transform = 'translateX(0)';
+                }, 150);
+            }, 100);
+        });
+
+        // Add pulse effect to decrypt buttons
+        document.querySelectorAll('.decrypt-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.animation = 'pulse 0.6s ease-in-out';
+            });
+            
+            btn.addEventListener('animationend', () => {
+                btn.style.animation = '';
+            });
+        });
+
+        // Success message auto-hide
+        const successAlert = document.querySelector('.alert-success');
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.style.opacity = '0.7';
+                setTimeout(() => {
+                    successAlert.style.display = 'none';
+                }, 2000);
+            }, 5000);
+        }
+
+        // Copy encrypted text on click
+        document.querySelectorAll('.encrypted-content .text').forEach(text => {
+            text.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.textContent).then(() => {
+                    this.style.background = 'rgba(39, 174, 96, 0.2)';
+                    setTimeout(() => {
+                        this.style.background = '';
+                    }, 1000);
+                });
+            });
+            
+            text.style.cursor = 'pointer';
+            text.title = 'Click to copy encrypted text';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Blockchain Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .navbar {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .navbar .nav-links a:hover {
+            background: rgba(229, 9, 20, 0.1);
+            border-color: #e50914;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #e50914, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.6)); }
+            to { filter: drop-shadow(0 0 25px rgba(155, 89, 182, 0.8)); }
+        }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .profile-card {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            border: 2px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e50914, #9b59b6, #e50914);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e50914, #9b59b6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 3em;
+            box-shadow: 0 15px 35px rgba(229, 9, 20, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 20px 45px rgba(229, 9, 20, 0.6);
+        }
+
+        .avatar:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .avatar:hover:before {
+            left: 100%;
+        }
+
+        .user-name {
+            font-size: 2em;
+            font-weight: bold;
+            color: #e50914;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        .user-role {
+            color: #9b59b6;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            margin-top: 30px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(45, 45, 45, 0.5);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e50914;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: rgba(45, 45, 45, 0.8);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(229, 9, 20, 0.2);
+        }
+
+        .info-item .label {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .info-item .value {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .stats-section {
+            margin-top: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(45, 45, 45, 0.6);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(229, 9, 20, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            border-color: rgba(229, 9, 20, 0.5);
+            box-shadow: 0 15px 30px rgba(229, 9, 20, 0.3);
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #e50914;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .edit-section {
+            background: rgba(45, 45, 45, 0.3);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px dashed rgba(229, 9, 20, 0.3);
+        }
+
+        .edit-section h3 {
+            color: #e50914;
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(45, 45, 45, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #e50914;
+            background: rgba(45, 45, 45, 0.95);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #e50914, #d40813);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(229, 9, 20, 0.4);
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            margin-left: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .password-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(229, 9, 20, 0.2);
+        }
+
+        .alert {
+            padding: 18px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .activity-log {
+            background: rgba(20, 20, 20, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            margin-top: 30px;
+        }
+
+        .activity-log h3 {
+            color: #9b59b6;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .activity-item {
+            background: rgba(45, 45, 45, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #9b59b6;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: rgba(45, 45, 45, 0.7);
+            transform: translateX(5px);
+        }
+
+        .activity-item .time {
+            color: #f39c12;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .activity-item .description {
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .floating-profile {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 20px;
+            color: #9b59b6;
+            animation: floatIcon 20s infinite linear;
+            opacity: 0.2;
+        }
+
+        @keyframes floatIcon {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5em;
+            }
+
+            .user-name {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">👤 USER PROFILE</div>
+        <div class="nav-links">
+            <a th:href="@{/node}">← Back to Node</a>
+            <a th:href="@{/dashboard}">Dashboard</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="floating-profile">
+        <div class="floating-icon" style="left: 5%; animation-delay: 0s;">👤</div>
+        <div class="floating-icon" style="left: 15%; animation-delay: 4s;">⚙️</div>
+        <div class="floating-icon" style="left: 25%; animation-delay: 8s;">📊</div>
+        <div class="floating-icon" style="left: 35%; animation-delay: 12s;">🔒</div>
+        <div class="floating-icon" style="left: 45%; animation-delay: 2s;">📈</div>
+        <div class="floating-icon" style="left: 55%; animation-delay: 6s;">🌟</div>
+        <div class="floating-icon" style="left: 65%; animation-delay: 10s;">💎</div>
+        <div class="floating-icon" style="left: 75%; animation-delay: 14s;">🚀</div>
+        <div class="floating-icon" style="left: 85%; animation-delay: 3s;">⭐</div>
+        <div class="floating-icon" style="left: 95%; animation-delay: 7s;">🔥</div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>USER PROFILE</h1>
+            <p style="font-size: 1.2em; opacity: 0.8;">Manage your account settings and view your blockchain activity</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="profile-grid">
+            <div class="profile-card">
+                <div class="avatar-section">
+                    <div class="avatar">👤</div>
+                    <div class="user-name" th:text="${user.username}">Username</div>
+                    <div class="user-role">Crypto Node Operator</div>
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="label">User ID:</span>
+                        <span class="value" th:text="${user.id}">1</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Username:</span>
+                        <span class="value" th:text="${user.username}">username</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email:</span>
+                        <span class="value" th:text="${user.email}">user@example.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Current Node:</span>
+                        <span class="value" th:text="'Node ' + ${user.nodeNumber}">Node 1</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Member Since:</span>
+                        <span class="value" th:text="${#temporals.format(user.createdAt, 'MMM dd, yyyy')}">Dec 15, 2023</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Account Status:</span>
+                        <span class="value">Active</span>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 style="color: #e50914; margin-bottom: 20px; text-align: center;">📊 Your Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="number" th:text="${userTokenCount}">0</div>
+                            <div class="label">Tokens Created</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number" th:text="${userTransactionCount}">0</div>
+                            <div class="label">Transactions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">100%</div>
+                            <div class="label">Uptime</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="number">A+</div>
+                            <div class="label">Security</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="edit-section">
+                    <h3>✏️ Update Profile</h3>
+                    <form th:action="@{/profile/update}" method="post">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" th:value="${user.email}" required>
+                        </div>
+
+                        <button type="submit" class="btn">Update Profile</button>
+                    </form>
+                </div>
+
+                <div class="password-section">
+                    <div class="edit-section">
+                        <h3>🔒 Change Password</h3>
+                        <form th:action="@{/profile/change-password}" method="post">
+                            <div class="form-group">
+                                <label for="currentPassword">Current Password</label>
+                                <input type="password" id="currentPassword" name="currentPassword" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <input type="password" id="newPassword" name="newPassword" required minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-secondary">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="activity-log">
+                    <h3>📈 Recent Activity</h3>
+                    <div class="activity-item">
+                        <div class="time">2 minutes ago</div>
+                        <div class="description">Logged into blockchain network</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="time">1 hour ago</div>
+                        <div class="description">Created new token in Node <span th:text="${user.nodeNumber}">1</span></div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="time">3 hours ago</div>
+                        <div class="description">Transferred token to adjacent node</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="time">Yesterday</div>
+                        <div class="description">Decrypted received token successfully</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="time">2 days ago</div>
+                        <div class="description">Profile information updated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-card" style="margin-top: 40px;">
+            <h3 style="color: #e50914; font-size: 2em; margin-bottom: 30px; text-align: center;">🏆 Achievements & Badges</h3>
+            
+            <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(243, 156, 18, 0.1));">
+                    <div class="number">🥇</div>
+                    <div class="label">First Token Created</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(155, 89, 182, 0.1));">
+                    <div class="number">🔒</div>
+                    <div class="label">Security Expert</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));">
+                    <div class="number">⚡</div>
+                    <div class="label">Speed Demon</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(192, 57, 43, 0.1));">
+                    <div class="number">🌟</div>
+                    <div class="label">Network Star</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = this.value;
+            
+            if (newPassword !== confirmPassword && confirmPassword.length > 0) {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = '0 0 15px rgba(231, 76, 60, 0.3)';
+            } else if (newPassword === confirmPassword && confirmPassword.length > 0) {
+                this.style.borderColor = '#27ae60';
+                this.style.boxShadow = '0 0 15px rgba(39, 174, 96, 0.3)';
+            } else {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                this.style.boxShadow = 'none';
+            }
+        });
+
+        // Password strength indicator
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            if (strength < 2) {
+                this.style.borderColor = '#e74c3c';
+            } else if (strength < 4) {
+                this.style.borderColor = '#f39c12';
+            } else {
+                this.style.borderColor = '#27ae60';
+            }
+        });
+
+        // Form submission validation
+        document.querySelector('form[action*="change-password"]').addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('New passwords do not match!');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                e.preventDefault();
+                alert('New password must be at least 6 characters long!');
+                return;
+            }
+        });
+
+        // Add floating icons dynamically
+        function createFloatingIcon() {
+            const icons = ['👤', '⚙️', '📊', '🔒', '📈', '🌟', '💎', '🚀', '⭐', '🔥'];
+            const icon = document.createElement('div');
+            icon.className = 'floating-icon';
+            icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+            icon.style.left = Math.random() * 100 + '%';
+            icon.style.animationDelay = '0s';
+            icon.style.animationDuration = (Math.random() * 8 + 15) + 's';
+            document.querySelector('.floating-profile').appendChild(icon);
+            
+            setTimeout(() => {
+                icon.remove();
+            }, 25000);
+        }
+
+        setInterval(createFloatingIcon, 4000);
+
+        // Enhanced hover effects
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-12px) scale(1.08) rotateY(5deg)';
+                card.style.boxShadow = '0 20px 40px rgba(229, 9, 20, 0.4)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1) rotateY(0deg)';
+                card.style.boxShadow = 'none';
+            });
+        });
+
+        // Info item animations
+        document.querySelectorAll('.info-item').forEach((item, index) => {
+            item.style.animationDelay = (index * 0.1) + 's';
+            item.style.animation = 'slideIn 0.6s ease-out forwards';
+            
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(10px) scale(1.02)';
+                item.style.boxShadow = '0 8px 25px rgba(229, 9, 20, 0.3)';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0) scale(1)';
+                item.style.boxShadow = 'none';
+            });
+        });
+
+        // Avatar interaction
+        document.querySelector('.avatar').addEventListener('click', function() {
+            this.style.animation = 'pulse-node 0.6s ease-in-out 2';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 1200);
+        });
+
+        // Auto-hide alerts
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.opacity = '0.8';
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000);
+            }, 5000);
+        });
+
+        // Form input enhancements
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+
+            input.addEventListener('keypress', function(e) {
+                this.style.transform = 'scale(1.01)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+
+        // Activity log auto-scroll
+        const activityLog = document.querySelector('.activity-log');
+        let activityIndex = 0;
+
+        function addNewActivity() {
+            const activities = [
+                "Token encrypted successfully",
+                "Connection to network verified",
+                "Blockchain synchronized",
+                "Security scan completed",
+                "Node status updated"
+            ];
+            
+            const newActivity = document.createElement('div');
+            newActivity.className = 'activity-item';
+            newActivity.innerHTML = `
+                <div class="time">Just now</div>
+                <div class="description">${activities[activityIndex % activities.length]}</div>
+            `;
+            
+            const firstActivity = activityLog.querySelector('.activity-item');
+            activityLog.insertBefore(newActivity, firstActivity);
+            
+            // Remove last activity if more than 5
+            const allActivities = activityLog.querySelectorAll('.activity-item');
+            if (allActivities.length > 5) {
+                allActivities[allActivities.length - 1].remove();
+            }
+            
+            activityIndex++;
+        }
+
+        // Add new activity every 30 seconds
+        setInterval(addNewActivity, 30000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'e':
+                        e.preventDefault();
+                        document.getElementById('email').focus();
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        document.getElementById('currentPassword').focus();
+                        break;
+                }
+            }
+        });
+
+        // Add tips tooltip
+        const tips = document.createElement('div');
+        tips.innerHTML = `
+            <div style="position: fixed; bottom: 20px; right: 20px; background: rgba(20, 20, 20, 0.9); padding: 15px; border-radius: 10px; font-size: 0.8em; opacity: 0.7; z-index: 1000;">
+                <div>💡 Profile Tips:</div>
+                <div>• Keep your email updated</div>
+                <div>• Use strong passwords</div>
+                <div>• Check activity regularly</div>
+                <div>• Click avatar for fun!</div>
+            </div>
+        `;
+        document.body.appendChild(tips);
+
+        // Hide tips after 8 seconds
+        setTimeout(() => {
+            tips.style.display = 'none';
+        }, 8000);
+    </script>
+</body>
+</html>

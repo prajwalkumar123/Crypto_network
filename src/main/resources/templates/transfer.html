@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Transfer - Blockchain Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .navbar {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #e50914;
+            text-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .navbar .nav-links a:hover {
+            background: rgba(229, 9, 20, 0.1);
+            border-color: #e50914;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #e50914, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.6)); }
+            to { filter: drop-shadow(0 0 25px rgba(229, 9, 20, 0.9)); }
+        }
+
+        .transfer-section {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 2px solid rgba(229, 9, 20, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transfer-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e50914, #f39c12, #e50914);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .node-selector {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .node-option {
+            background: rgba(45, 45, 45, 0.8);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .node-option:hover {
+            border-color: #e50914;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(229, 9, 20, 0.3);
+        }
+
+        .node-option.selected {
+            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
+            box-shadow: 0 0 30px rgba(229, 9, 20, 0.4);
+        }
+
+        .node-option .arrow {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #e50914;
+        }
+
+        .node-option h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .node-option .node-number {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(45, 45, 45, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: #ffffff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #e50914;
+            background: rgba(45, 45, 45, 0.95);
+            box-shadow: 0 0 25px rgba(229, 9, 20, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .token-preview {
+            background: rgba(45, 45, 45, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #e50914;
+            margin-bottom: 25px;
+        }
+
+        .token-preview h4 {
+            color: #f39c12;
+            margin-bottom: 10px;
+        }
+
+        .token-preview .content {
+            color: #ffffff;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .transfer-btn {
+            background: linear-gradient(135deg, #e50914, #d40813);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.4);
+            display: block;
+            margin: 30px auto 0;
+            position: relative;
+            overflow: hidden;
+            disabled: false;
+        }
+
+        .transfer-btn:disabled {
+            background: rgba(100, 100, 100, 0.5);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .transfer-btn:not(:disabled):hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(229, 9, 20, 0.5);
+        }
+
+        .transfer-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .transfer-btn:not(:disabled):hover:before {
+            left: 100%;
+        }
+
+        .available-tokens {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .token-item {
+            background: rgba(45, 45, 45, 0.6);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .token-item:hover {
+            background: rgba(45, 45, 45, 0.9);
+            border-color: #e50914;
+            transform: translateX(5px);
+        }
+
+        .token-item.selected {
+            border-color: #e50914;
+            background: rgba(229, 9, 20, 0.1);
+        }
+
+        .token-item .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .token-item .id {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .token-item .status {
+            background: rgba(39, 174, 96, 0.2);
+            color: #27ae60;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .token-item .content {
+            color: #ffffff;
+            opacity: 0.8;
+            max-height: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-left-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .encryption-info {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .encryption-info h4 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .encryption-info p {
+            color: #ffffff;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        .transfer-animation {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .transfer-animation.show {
+            display: block;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(229, 9, 20, 0.3);
+            border-top: 4px solid #e50914;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .floating-transfers {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-arrow {
+            position: absolute;
+            font-size: 20px;
+            color: #e50914;
+            animation: floatArrow 8s infinite linear;
+            opacity: 0.3;
+        }
+
+        @keyframes floatArrow {
+            0% {
+                transform: translateX(-100px) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateX(calc(100vw + 100px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">📤 TRANSFER CENTER</div>
+        <div class="nav-links">
+            <a th:href="@{/node}">← Back to Node</a>
+            <a th:href="@{/token}">Tokens</a>
+            <a th:href="@{/received}">Received</a>
+            <a th:href="@{/logout}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="floating-transfers">
+        <div class="floating-arrow" style="top: 20%; animation-delay: 0s;">→</div>
+        <div class="floating-arrow" style="top: 40%; animation-delay: 2s;">↗</div>
+        <div class="floating-arrow" style="top: 60%; animation-delay: 4s;">→</div>
+        <div class="floating-arrow" style="top: 80%; animation-delay: 6s;">↘</div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>TOKEN TRANSFER</h1>
+            <p style="font-size: 1.2em; opacity: 0.8;">Securely transfer your encrypted tokens to adjacent nodes</p>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="transfer-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #e50914; font-size: 2em;">Select Destination Node</h2>
+            
+            <div class="node-selector">
+                <div class="node-option" id="prevNode" data-direction="previous">
+                    <div class="arrow">←</div>
+                    <h3>Previous Node</h3>
+                    <div class="node-number" th:text="${prevNode}">10</div>
+                </div>
+                
+                <div style="display: flex; align-items: center; font-size: 2em; color: #f39c12;">
+                    Current: <span th:text="${user.nodeNumber}" style="margin-left: 10px; color: #e50914;">1</span>
+                </div>
+                
+                <div class="node-option" id="nextNode" data-direction="next">
+                    <div class="arrow">→</div>
+                    <h3>Next Node</h3>
+                    <div class="node-number" th:text="${nextNode}">2</div>
+                </div>
+            </div>
+
+            <div class="encryption-info">
+                <h4>🔐 Encryption Information</h4>
+                <p>Your token will be encrypted using a randomly selected algorithm (Affine, Caesar, or Block cipher) based on your provided key. The encrypted data will be securely transferred to the selected node and can only be decrypted with the same key.</p>
+            </div>
+
+            <form id="transferForm" th:action="@{/transfer/process}" method="post">
+                <div class="form-container">
+                    <div>
+                        <h3 style="color: #e50914; margin-bottom: 20px;">Select Token to Transfer</h3>
+                        <div class="available-tokens">
+                            <div th:if="${availableTokens.empty}" style="text-align: center; padding: 40px; opacity: 0.7;">
+                                <p>No tokens available for transfer. Create tokens first!</p>
+                            </div>
+                            <div th:each="token : ${availableTokens}" class="token-item" th:data-token-id="${token.id}">
+                                <div class="header">
+                                    <span class="id">Token #<span th:text="${token.id}">1</span></span>
+                                    <span class="status" th:text="${token.status}">PENDING</span>
+                                </div>
+                                <div class="content" th:text="${token.tokenText}">Token content preview...</div>
+                            </div>
+                        </div>
+                        
+                        <input type="hidden" id="selectedTokenId" name="tokenId" required>
+                        <input type="hidden" id="selectedDirection" name="direction" required>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #e50914; margin-bottom: 20px;">Transfer Configuration</h3>
+                        
+                        <div class="form-group">
+                            <label for="encryptionKey">Encryption Key</label>
+                            <input type="text" id="encryptionKey" name="encryptionKey" 
+                                   placeholder="Enter encryption key for secure transfer" required minlength="4">
+                            <small style="color: #f39c12; margin-top: 5px; display: block;">
+                                Remember this key - it's needed for decryption at the destination node!
+                            </small>
+                        </div>
+
+                        <div id="tokenPreview" class="token-preview" style="display: none;">
+                            <h4>Selected Token Preview</h4>
+                            <div class="content" id="previewContent"></div>
+                        </div>
+
+                        <div id="transferAnimation" class="transfer-animation">
+                            <div class="loader"></div>
+                            <p>Encrypting and transferring token...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="transfer-btn" id="transferButton" disabled>
+                    🚀 Execute Transfer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedTokenId = null;
+        let selectedDirection = null;
+
+        // Node selection
+        document.querySelectorAll('.node-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.node-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDirection = this.dataset.direction;
+                document.getElementById('selectedDirection').value = selectedDirection;
+                updateTransferButton();
+            });
+        });
+
+        // Token selection
+        document.querySelectorAll('.token-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.token-item').forEach(token => token.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                selectedTokenId = this.dataset.tokenId;
+                document.getElementById('selectedTokenId').value = selectedTokenId;
+                
+                // Show token preview
+                const content = this.querySelector('.content').textContent;
+                document.getElementById('previewContent').textContent = content;
+                document.getElementById('tokenPreview').style.display = 'block';
+                
+                updateTransferButton();
+            });
+        });
+
+        // Update transfer button state
+        function updateTransferButton() {
+            const encryptionKey = document.getElementById('encryptionKey').value;
+            const button = document.getElementById('transferButton');
+            
+            if (selectedTokenId && selectedDirection && encryptionKey.length >= 4) {
+                button.disabled = false;
+                button.textContent = '🚀 Execute Transfer';
+            } else {
+                button.disabled = true;
+                button.textContent = '🚀 Execute Transfer (Complete all fields)';
+            }
+        }
+
+        // Encryption key validation
+        document.getElementById('encryptionKey').addEventListener('input', function() {
+            updateTransferButton();
+            
+            const key = this.value;
+            if (key.length < 4 && key.length > 0) {
+                this.style.borderColor = '#e74c3c';
+            } else if (key.length >= 4) {
+                this.style.borderColor = '#27ae60';
+            } else {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        });
+
+        // Form submission with animation
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            if (!selectedTokenId || !selectedDirection) {
+                e.preventDefault();
+                alert('Please select both a token and a destination node');
+                return;
+            }
+            
+            const encryptionKey = document.getElementById('encryptionKey').value;
+            if (encryptionKey.length < 4) {
+                e.preventDefault();
+                alert('Encryption key must be at least 4 characters long');
+                return;
+            }
+
+            // Show transfer animation
+            document.getElementById('transferAnimation').classList.add('show');
+            document.getElementById('transferButton').style.display = 'none';
+            
+            // Simulate processing time
+            setTimeout(() => {
+                // Form will submit naturally
+            }, 1000);
+        });
+
+        // Add floating arrows dynamically
+        function createFloatingArrow() {
+            const arrow = document.createElement('div');
+            arrow.className = 'floating-arrow';
+            arrow.textContent = ['→', '↗', '↘', '↖', '↙'][Math.floor(Math.random() * 5)];
+            arrow.style.top = Math.random() * 100 + '%';
+            arrow.style.animationDelay = '0s';
+            arrow.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            document.querySelector('.floating-transfers').appendChild(arrow);
+            
+            setTimeout(() => {
+                arrow.remove();
+            }, 10000);
+        }
+
+        setInterval(createFloatingArrow, 2000);
+
+        // Enhanced hover effects
+        document.querySelectorAll('.node-option').forEach(option => {
+            option.addEventListener('mouseenter', () => {
+                option.style.transform = 'translateY(-10px) scale(1.05)';
+            });
+            
+            option.addEventListener('mouseleave', () => {
+                if (!option.classList.contains('selected')) {
+                    option.style.transform = 'translateY(0) scale(1)';
+                }
+            });
+        });
+
+        // Key press animations
+        document.getElementById('encryptionKey').addEventListener('keypress', function(e) {
+            this.style.transform = 'scale(1.02)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
